@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // 2. Your Database Configuration
+  const SUPABASE_URL = 'https://etnoccbcgmqfxzqtomnz.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_JFpZGFpJdJ04hXT3gruTmQ_oPzD2zKh';
+  
+  // 3. Initialize the Connection
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // 4. Test function to make sure it works
+  async function testConnection() {
+      console.log("Attempting to connect to Supabase...");
+      const { data, error } = await supabase.from('game_history').select('*').limit(1);
+      if (error) {
+          console.error("Connection Error:", error.message);
+      } else {
+          console.log("Successfully connected to the server!");
+      }
+  }
+  
+  testConnection();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Y369 VIP | Elite Betting Platform</title>
@@ -706,4 +729,5 @@ const admin = {
 window.onload = app.init;
 </script>
 </body>
+
 </html>
