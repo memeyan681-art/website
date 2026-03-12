@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Y369 VIP | Elite Betting Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&family=Montserrat:wght@400;600;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet">
+<style>
+/* --- CSS VARIABLES --- */
+:root {
+    --primary: #D4AF37;
+    --primary-light: #FFD700;
+    --secondary: #0a0a0a;
+    --bg-dark: #050505;
+    --bg-card: #111111;
+    --text-main: #ffffff;
+    --text-muted: #888888;
+    --success: #00b050;
+    --danger: #d32f2f;
+    --glass: rgba(20, 20, 20, 0.9);
+    --shadow: 0 10px 30px rgba(0,0,0,0.5);
+    --radius: 12px;
+    --transition: all 0.3s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; min-height: 100vh; }
+.hidden { display: none !important; }
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+/* --- TOAST NOTIFICATIONS --- */
+#toast-container { position: fixed; top: 20px; right: 20px; z-index: 100000; display: flex; flex-direction: column; gap: 10px; }
+.toast { padding: 15px 25px; border-radius: 8px; color: white; font-weight: 600; box-shadow: var(--shadow); animation: slideUp 0.3s ease-out; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.info { background: #2196f3; }
+
+/* --- AUTH SCREEN --- */
+.auth-screen { position: fixed; inset: 0; background: radial-gradient(circle at top, #1a1a1a, #000); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 2000; }
+.auth-card { width: 100%; max-width: 420px; padding: 40px; background: var(--bg-card); border: 1px solid var(--primary); border-radius: 20px; box-shadow: 0 0 50px rgba(212, 175, 55, 0.1); text-align: center; }
+.auth-logo { font-family: 'Playfair Display', serif; font-size: 48px; color: var(--primary-light); margin-bottom: 10px; }
+.form-group { margin-bottom: 20px; text-align: left; }
+.form-label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+.form-input { width: 100%; padding: 14px 18px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; border-radius: 8px; font-size: 15px; transition: var(--transition); }
+.form-input:focus { border-color: var(--primary); outline: none; }
+.btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; transition: var(--transition); text-transform: uppercase; }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #000; box-shadow: 0 4px 15px rgba(212,175,55,0.3); }
+.auth-switch { margin-top: 25px; color: var(--text-muted); font-size: 14px; }
+.auth-link { color: var(--primary-light); cursor: pointer; font-weight: 600; }
+
+/* --- MAIN APP LAYOUT --- */
+.app-container { display: none; flex-direction: column; min-height: 100vh; }
+.app-container.active { display: flex; }
+
+/* --- HEADER --- */
+.app-header { padding: 15px 20px; background: rgba(10, 10, 10, 0.95); border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+.header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.header-logo-text { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--primary-light); font-weight: 900; }
+.header-balance { background: linear-gradient(135deg, #222, #111); padding: 8px 20px; border-radius: 30px; border: 1px solid var(--primary); color: var(--success); font-weight: 700; font-size: 16px; }
+.btn-icon { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #333; background: #111; color: var(--primary); cursor: pointer; transition: var(--transition); }
+.btn-icon:hover { background: var(--primary); color: #000; }
+
+/* --- MARQUEE --- */
+.marquee-container { background: #000; padding: 10px 0; border-bottom: 1px solid #222; overflow: hidden; }
+.marquee-content { white-space: nowrap; animation: marquee 30s linear infinite; color: var(--primary); font-weight: 600; font-size: 14px; }
+
+/* --- BOTTOM NAVIGATION --- */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.98); border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; padding: 5px 15px; border-radius: 10px; }
+.nav-item.active { color: var(--primary-light); background: rgba(212, 175, 55, 0.1); }
+.nav-item i { font-size: 20px; }
+.nav-item span { font-size: 11px; font-weight: 600; }
+
+/* --- MAIN CONTENT --- */
+.main-content { flex: 1; padding: 20px; padding-bottom: 100px; max-width: 1200px; margin: 0 auto; width: 100%; }
+.section-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: white; display: flex; align-items: center; gap: 10px; }
+.section-title::before { content: ''; width: 4px; height: 20px; background: var(--primary); border-radius: 2px; }
+
+/* --- GAME GRID --- */
+.game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+@media(min-width: 600px) { .game-grid { grid-template-columns: repeat(3, 1fr); } }
+@media(min-width: 900px) { .game-grid { grid-template-columns: repeat(4, 1fr); } }
+.game-card { background: linear-gradient(145deg, #1a1a1a, #000); border: 1px solid #222; border-radius: 16px; padding: 20px 10px; text-align: center; cursor: pointer; transition: var(--transition); }
+.game-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+.game-card-icon { font-size: 40px; margin-bottom: 10px; color: white; }
+.game-card-title { font-size: 16px; font-weight: 700; color: var(--primary-light); text-transform: uppercase; }
+.game-card-sub { font-family: 'Kantumruy Pro', sans-serif; font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+.game-card.football .game-card-icon { color: var(--success); }
+.game-card.casino .game-card-icon { color: #ff4d4d; }
+
+/* --- SPORTS BETTING --- */
+.match-card { background: var(--bg-card); border-radius: 16px; border: 1px solid #222; margin-bottom: 15px; overflow: hidden; }
+.match-header { background: #1a1a1a; padding: 10px 20px; display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid #222; }
+.match-body { padding: 20px; text-align: center; }
+.match-teams { font-size: 18px; font-weight: 700; color: white; margin-bottom: 5px; }
+.match-score { font-size: 32px; font-weight: 900; color: var(--primary-light); font-family: 'Playfair Display', serif; margin: 10px 0; }
+.bet-section { padding: 0 20px 15px; }
+.bet-section-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+.match-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.match-actions-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.bet-btn { background: linear-gradient(145deg, #222, #1a1a1a); border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
+.bet-btn:hover { border-color: var(--primary); color: var(--primary-light); }
+
+/* --- HISTORY --- */
+.history-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.tab-btn { padding: 10px 20px; border: none; background: #1a1a1a; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
+.tab-btn.active { background: var(--primary); color: #000; }
+.receipt-card { background: var(--bg-card); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid #333; display: flex; justify-content: space-between; align-items: center; }
+.receipt-card.win { border-left-color: var(--success); }
+.receipt-card.lose { border-left-color: var(--danger); }
+.receipt-id { font-size: 10px; color: #555; font-family: monospace; }
+
+/* --- PROFILE --- */
+.profile-card { background: linear-gradient(145deg, #1a1a1a, #000); border: 1px solid #222; border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 20px; }
+.profile-avatar { width: 80px; height: 80px; background: var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; color: #000; margin: 0 auto 15px; }
+.profile-balance-value { font-size: 32px; color: var(--success); font-weight: 700; margin-top: 5px; }
+.action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+.action-btn { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; color: white; }
+.action-btn i { font-size: 24px; color: var(--primary); }
+
+/* --- ADMIN PANEL --- */
+#adminPanel { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 3000; overflow-y: auto; padding: 20px; display: none; }
+#adminPanel.active { display: block; }
+.admin-header { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto 20px; padding-bottom: 20px; border-bottom: 1px solid #333; }
+.admin-close { background: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.admin-container { max-width: 800px; margin: 0 auto; display: grid; gap: 20px; }
+.admin-card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; }
+.admin-card h3 { color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.admin-btn { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.admin-btn.primary { background: var(--primary); color: #000; }
+.admin-btn.danger { background: var(--danger); }
+.admin-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 8px; margin-bottom: 10px; }
+.note { font-size: 11px; color: #888; margin-top: 5px; }
+
+/* User Board Table Styles */
+.user-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.user-table th, .user-table td { padding: 12px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; }
+.user-table th { color: var(--primary); font-size: 12px; text-transform: uppercase; }
+.user-table tr:hover { background: #1a1a1a; }
+.role-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+.role-admin { background: var(--danger); color: white; }
+.role-user { background: #333; color: white; }
+
+/* --- GAME SCREENS (Condensed CSS) --- */
+#gameScreen, #slotScreen { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; }
+#gameScreen.active, #slotScreen.active { display: flex; }
+.game-top-bar { height: 60px; background: linear-gradient(180deg, #1a1a1a, #0a0a0a); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333; z-index: 10; }
+.game-back-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+.game-logo { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--primary-light); }
+.game-balance { background: #000; border: 1px solid var(--primary); padding: 5px 15px; border-radius: 20px; font-weight: 700; }
+.game-table { flex: 1; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; perspective: 1200px; background: #157a4d; }
+.table-bg { position: absolute; width: 140%; height: 140%; background: radial-gradient(ellipse at center, #157a4d 0%, #0f5c39 60%, #000 100%); transform: rotateX(30deg); }
+.card-zone { position: absolute; width: 130px; height: 180px; display: flex; flex-direction: column; align-items: center; z-index: 5; }
+.card-zone.tiger { top: 20%; left: 20%; }
+.card-zone.dragon { top: 20%; right: 20%; }
+.zone-label { font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+.zone-label.tiger { color: #ff4d4d; }
+.zone-label.dragon { color: #4da6ff; }
+.game-card-deck { width: 110px; height: 160px; position: relative; transform-style: preserve-3d; transition: transform 0.8s; }
+.game-card-deck.flipped { transform: rotateY(180deg); }
+.card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.card-back { background: linear-gradient(135deg, #b71c1c, #500000); border: 4px solid white; }
+.card-front { background: #fff; transform: rotateY(180deg); flex-direction: column; }
+.card-rank-val { font-size: 48px; font-weight: 900; font-family: 'Playfair Display', serif; }
+.card-suit-val { font-size: 56px; }
+.card-red { color: #d32f2f; }
+.card-black { color: #212121; }
+.game-betting-area { position: absolute; bottom: 15%; left: 0; right: 0; display: flex; justify-content: center; gap: 40px; z-index: 10; }
+.bet-circle { width: 130px; height: 130px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; border: 3px dashed rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); }
+.bet-circle.tiger { border-color: #ff4d4d; }
+.bet-circle.dragon { border-color: #4da6ff; }
+.bet-circle.tie { width: 100px; height: 100px; border-color: var(--primary); align-self: flex-end; margin-bottom: 20px; }
+.bet-label { font-size: 22px; font-weight: 700; text-transform: uppercase; color: white; }
+.bet-odds { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.chip-stack { position: absolute; bottom: -10px; display: flex; pointer-events: none; }
+.stack-chip { width: 30px; height: 30px; border-radius: 50%; background: var(--primary); border: 2px dashed rgba(255,255,255,0.5); color: #000; font-size: 10px; font-weight: bold; display: flex; justify-content: center; align-items: center; margin-left: -5px; }
+.game-chip-tray { height: 90px; background: linear-gradient(180deg, #1a1a1a, #000); border-top: 1px solid #333; display: flex; justify-content: center; align-items: center; gap: 15px; padding: 0 20px; }
+.chip-btn { width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 16px; cursor: pointer; transition: var(--transition); border: 3px dashed rgba(255,255,255,0.4); }
+.chip-btn:hover, .chip-btn.active { transform: translateY(-10px); box-shadow: 0 0 20px currentColor; }
+.chip-5 { background: #f44336; color: white; }
+.chip-25 { background: #4caf50; color: white; }
+.chip-100 { background: #212121; color: white; }
+.chip-500 { background: #9c27b0; color: white; }
+.chip-1k { background: var(--primary); color: black; border-style: solid; }
+.tray-clear { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; margin-left: 10px; }
+.game-timer { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); border: 2px solid var(--primary); padding: 8px 30px; border-radius: 30px; color: var(--primary-light); font-weight: 700; font-size: 18px; z-index: 20; white-space: nowrap; }
+.result-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.result-overlay.show { opacity: 1; pointer-events: auto; }
+.result-box { background: linear-gradient(145deg, #1e1e1e, #111); border: 4px solid var(--primary); padding: 40px 60px; border-radius: 20px; text-align: center; transform: scale(0.8); transition: transform 0.3s; }
+.result-overlay.show .result-box { transform: scale(1); }
+.result-main { font-family: 'Playfair Display', serif; font-size: 60px; color: white; text-transform: uppercase; margin-bottom: 10px; }
+.result-main.tiger { color: #ff4d4d; }
+.result-main.dragon { color: #4da6ff; }
+.result-main.tie { color: var(--primary); }
+.result-sub { font-size: 24px; color: #ccc; text-transform: uppercase; }
+.result-amount { font-size: 36px; color: var(--success); margin-top: 15px; font-weight: 700; }
+
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- AUTH SCREEN -->
+<div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+        <div class="auth-logo">Y369</div>
+        <div class="auth-subtitle">ELITE BETTING PLATFORM</div>
+        <div id="loginForm">
+            <div class="form-group"><label class="form-label">Username</label><input type="text" id="loginUsername" class="form-input" placeholder="Enter username"></div>
+            <div class="form-group"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input" placeholder="Enter password"></div>
+            <button class="btn btn-primary" onclick="app.login()">LOGIN</button>
+            <div class="auth-switch">Don't have an account? <span class="auth-link" onclick="auth.toggle('register')">Register Now</span></div>
+        </div>
+        <div id="registerForm" class="hidden">
+            <div class="form-group"><label class="form-label">Username</label><input type="text" id="regUsername" class="form-input" placeholder="Choose a username"></div>
+            <div class="form-group"><label class="form-label">Password</label><input type="password" id="regPassword" class="form-input" placeholder="Create a password"></div>
+            <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" id="regConfirm" class="form-input" placeholder="Confirm password"></div>
+            <button class="btn btn-primary" onclick="app.register()">CREATE ACCOUNT</button>
+            <div class="auth-switch">Already have an account? <span class="auth-link" onclick="auth.toggle('login')">Login Here</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APPLICATION -->
+<div class="app-container" id="appContainer">
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-logo"><i class="fas fa-crown" style="color:var(--primary-light);"></i><div class="header-logo-text">Y369</div></div>
+            <div class="header-balance"><i class="fas fa-wallet"></i><span id="headerBalance">0.00</span></div>
+            <div style="display:flex; gap:10px;"><button class="btn-icon" onclick="app.showAdmin()"><i class="fas fa-cog"></i></button></div>
+        </div>
+    </header>
+    <div class="marquee-container"><div class="marquee-content">★ WELCOME TO Y369 VIP ★ CONTACT ADMIN TO DEPOSIT ★ PREMIUM SPORTS & CASINO ★</div></div>
+    <main class="main-content">
+        <section id="homePage" class="fadeIn">
+            <div class="section-title">GAME LOBBY</div>
+            <div class="game-grid">
+                <div class="game-card football" onclick="nav.goTo('sports', 'football')"><i class="fas fa-futbol game-card-icon"></i><div class="game-card-title">Football</div><div class="game-card-sub">បាល់ទាត់</div></div>
+                <div class="game-card casino" onclick="game.start()"><i class="fas fa-dragon game-card-icon"></i><div class="game-card-title">Dragon Tiger</div><div class="game-card-sub">តោនិងរ៉ុង</div></div>
+                <div class="game-card casino" onclick="nav.goTo('sports', 'esport')"><i class="fas fa-gamepad game-card-icon"></i><div class="game-card-title">E-Sport</div><div class="game-card-sub">កីឡាអេឡិចត្រូនិក</div></div>
+                <div class="game-card casino" onclick="slotGame.start()"><i class="fas fa-coins game-card-icon"></i><div class="game-card-title">Slot Games</div><div class="game-card-sub">ល្បែងស្លុត</div></div>
+            </div>
+        </section>
+        <section id="sportsPage" class="hidden fadeIn">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="section-title" id="sportsTitle">SPORTS BETTING</div>
+                <button class="btn btn-primary" style="width:auto; padding:8px 15px; font-size:12px;" onclick="nav.goTo('home')"><i class="fas fa-arrow-left"></i> Back</button>
+            </div>
+            <div id="matchesList"></div>
+        </section>
+        <section id="historyPage" class="hidden fadeIn">
+            <div class="section-title">MY HISTORY</div>
+            <div class="history-tabs">
+                <button class="tab-btn active" onclick="historyPage.filter('all')">All</button>
+                <button class="tab-btn" onclick="historyPage.filter('win')">Wins</button>
+                <button class="tab-btn" onclick="historyPage.filter('pending')">Pending</button>
+            </div>
+            <div id="historyList"></div>
+        </section>
+        <section id="profilePage" class="hidden fadeIn">
+            <div class="profile-card">
+                <div class="profile-avatar"><i class="fas fa-user"></i></div>
+                <div style="font-size: 20px; font-weight: 700;" id="profileName">Guest</div>
+                <div style="margin-top:20px;"><div class="profile-balance-value" id="profileBalance">$0.00</div><div style="font-size: 12px; color: var(--text-muted);">Available Balance</div></div>
+            </div>
+            <div class="action-grid">
+                <div class="action-btn" onclick="app.deposit()"><i class="fas fa-plus-circle"></i><span>Deposit</span></div>
+                <div class="action-btn" onclick="app.withdraw()"><i class="fas fa-minus-circle"></i><span>Withdraw</span></div>
+                <div class="action-btn" onclick="app.logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div>
+                <!-- Admin Button triggers password prompt -->
+                <div class="action-btn" onclick="app.showAdmin()"><i class="fas fa-user-shield"></i><span>Admin</span></div>
+            </div>
+        </section>
+    </main>
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="nav.goTo('home')" id="nav-home"><i class="fas fa-home"></i><span>Home</span></div>
+        <div class="nav-item" onclick="nav.goTo('sports')" id="nav-sports"><i class="fas fa-futbol"></i><span>Sports</span></div>
+        <div class="nav-item" onclick="nav.goTo('history')" id="nav-history"><i class="fas fa-history"></i><span>History</span></div>
+        <div class="nav-item" onclick="nav.goTo('profile')" id="nav-profile"><i class="fas fa-user"></i><span>Profile</span></div>
+    </nav>
+</div>
+
+<!-- DRAGON TIGER GAME SCREEN -->
+<div id="gameScreen">
+    <div class="game-top-bar">
+        <button class="game-back-btn" onclick="game.exit()"><i class="fas fa-arrow-left"></i> Back</button>
+        <div class="game-logo">TIGER DRAGON</div>
+        <div class="game-balance">$<span id="gameBalance">0.00</span></div>
+    </div>
+    <div class="game-table">
+        <div class="table-bg"></div>
+        <div class="game-timer" id="gameTimer"><span id="timerText">BETTING OPEN</span> <span id="timerVal">20s</span></div>
+        <div class="card-zone tiger"><div class="zone-label tiger">TIGER</div><div class="game-card-deck" id="cardTiger"><div class="card-face card-back"></div><div class="card-face card-front" id="tigerFront"></div></div></div>
+        <div class="card-zone dragon"><div class="zone-label dragon">DRAGON</div><div class="game-card-deck" id="cardDragon"><div class="card-face card-back"></div><div class="card-face card-front" id="dragonFront"></div></div></div>
+        <div class="game-betting-area">
+            <div class="bet-circle tiger" onclick="game.bet('tiger')"><div class="bet-label">TIGER</div><div class="bet-odds">1:1</div><div class="chip-stack" id="stackTiger"></div></div>
+            <div class="bet-circle tie" onclick="game.bet('tie')"><div class="bet-label">TIE</div><div class="bet-odds">1:8</div><div class="chip-stack" id="stackTie"></div></div>
+            <div class="bet-circle dragon" onclick="game.bet('dragon')"><div class="bet-label">DRAGON</div><div class="bet-odds">1:1</div><div class="chip-stack" id="stackDragon"></div></div>
+        </div>
+    </div>
+    <div class="game-chip-tray">
+        <div class="chip-btn chip-5" onclick="game.selectChip(5)">5</div><div class="chip-btn chip-25 active" onclick="game.selectChip(25)">25</div><div class="chip-btn chip-100" onclick="game.selectChip(100)">100</div><div class="chip-btn chip-500" onclick="game.selectChip(500)">500</div><div class="chip-btn chip-1k" onclick="game.selectChip(1000)">1K</div>
+        <button class="tray-clear" onclick="game.clearBets()">CLEAR</button>
+    </div>
+    <div class="result-overlay" id="resultOverlay"><div class="result-box"><div class="result-main" id="resultMain">TIGER</div><div class="result-sub" id="resultSub">YOU WIN</div><div class="result-amount" id="resultAmount"></div></div></div>
+</div>
+
+<!-- SLOT MACHINE SCREEN -->
+<div id="slotScreen">
+    <button class="game-back-btn" style="position:absolute; top:20px; left:20px; z-index:10;" onclick="slotGame.exit()"><i class="fas fa-arrow-left"></i> Back</button>
+    <div style="flex:1; display:flex; justify-content:center; align-items:center; color:#555;">Slot Machine Content</div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+    <div class="admin-header"><h2 style="color:var(--primary);">ADMIN DASHBOARD</h2><button class="admin-close" onclick="app.hideAdmin()">CLOSE</button></div>
+    <div class="admin-container">
+        
+        <!-- USER CONTROL BOARD -->
+        <div class="admin-card">
+            <h3><i class="fas fa-users-cog"></i> USER CONTROL BOARD</h3>
+            <p class="note">List of all registered players. Use the form below to manage funds.</p>
+            <div style="overflow-x:auto;">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- QUICK BALANCE ADJUSTMENT -->
+        <div class="admin-card">
+            <h3><i class="fas fa-hand-holding-usd"></i> BALANCE CONTROL</h3>
+            <div class="admin-grid">
+                <input type="text" id="adminTargetUser" class="admin-input" placeholder="Enter Username">
+                <input type="number" id="adminTargetAmount" class="admin-input" placeholder="Amount ($)">
+            </div>
+            <div class="admin-grid" style="margin-top:10px;">
+                <button class="admin-btn primary" onclick="admin.quickEdit('add')">ADD FUNDS</button>
+                <button class="admin-btn danger" onclick="admin.quickEdit('remove')">REMOVE FUNDS</button>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class="fas fa-trash-alt"></i> REMOVE MATCH</h3>
+            <input type="text" id="adminRemoveId" class="admin-input" placeholder="Match ID to Remove">
+            <button class="admin-btn danger" onclick="admin.removeMatch()" style="width:100%;">REMOVE MATCH</button>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class="fas fa-receipt"></i> UPDATE RESULT (Receipts)</h3>
+            <input type="text" id="adminReceiptId" class="admin-input" placeholder="Receipt ID (Number)">
+            <div class="admin-grid">
+                <button class="admin-btn" style="background:var(--success);" onclick="admin.updateReceipt('win')">SET WIN</button>
+                <button class="admin-btn" style="background:var(--danger);" onclick="admin.updateReceipt('lose')">SET LOSE</button>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class="fas fa-gamepad"></i> DRAGON TIGER CONTROL</h3>
+            <p style="font-size:12px; color:#888; margin-bottom:10px;">Mode: <span id="adminGameMode" style="color:var(--primary);">NORMAL</span></p>
+            <div class="admin-grid">
+                <button class="admin-btn" style="background:#ff4d4d;" onclick="admin.forceGame('tiger')">FORCE TIGER</button>
+                <button class="admin-btn" style="background:#4da6ff;" onclick="admin.forceGame('dragon')">FORCE DRAGON</button>
+                <button class="admin-btn primary" onclick="admin.forceGame('tie')">FORCE TIE</button>
+                <button class="admin-btn" onclick="admin.forceGame(null)">NORMAL</button>
+            </div>
+        </div>
+        
+        <div class="admin-card">
+            <h3><i class="fas fa-futbol"></i> CREATE MATCH</h3>
+            <div class="admin-grid">
+                <select id="adminMatchCat" class="admin-input" style="background:#000;"><option value="football">FOOTBALL</option><option value="esport">E-SPORT</option></select>
+                <input type="text" id="adminMatchId" class="admin-input" placeholder="Match ID">
+                <input type="text" id="adminTeam1" class="admin-input" placeholder="Home Team">
+                <input type="text" id="adminTeam2" class="admin-input" placeholder="Away Team">
+                <input type="number" id="adminMatchOdds" class="admin-input" placeholder="Odds (e.g. 1.9)">
+            </div>
+            <div style="margin-top:10px;">
+                <input type="text" id="adminOvers" class="admin-input" placeholder="Over Lines (2.5, 3.0)">
+                <input type="text" id="adminUnders" class="admin-input" placeholder="Under Lines (2.5, 3.0)">
+            </div>
+            <button class="admin-btn primary" onclick="admin.addMatch()" style="width:100%; margin-top:15px;">CREATE MATCH</button>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class="fas fa-gavel"></i> SETTLE MATCH</h3>
+            <input type="text" id="adminSettleId" class="admin-input" placeholder="Match ID to Settle">
+            <div class="admin-grid" style="margin-bottom:10px;">
+                <button class="admin-btn" style="background:var(--success);" onclick="admin.settle('1')">HOME WIN</button>
+                <button class="admin-btn" style="background:var(--success);" onclick="admin.settle('2')">AWAY WIN</button>
+            </div>
+            <div class="admin-grid">
+                <button class="admin-btn" style="background:#ff9800; color:#000;" onclick="admin.settle('over')">OVER WINS</button>
+                <button class="admin-btn" style="background:#2196f3;" onclick="admin.settle('under')">UNDER WINS</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// --- UTILITIES ---
+const $ = id => document.getElementById(id);
+const create = (tag, cls) => { const el = document.createElement(tag); if(cls) el.className = cls; return el; };
+
+// --- TOAST SYSTEM ---
+const toast = {
+    show: (msg, type = 'info') => {
+        const container = $('toast-container');
+        const t = create('div', `toast ${type}`);
+        t.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle"></i> ${msg}`;
+        container.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+    }
+};
+
+// --- DATA STORE ---
+const store = {
+    data: {
+        users: [{user: 'admin', pass: '2007', balance: 5000, role: 'admin'}, {user: 'demo', pass: 'demo', balance: 1000, role: 'user'}],
+        matches: [],
+        history: []
+    },
+    init: () => {
+        const defaultUsers = [{user: 'admin', pass: '2007', balance: 5000, role: 'admin'}, {user: 'demo', pass: 'demo', balance: 1000, role: 'user'}];
+        try {
+            const saved = localStorage.getItem('y369_data');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && Array.isArray(parsed.users) && parsed.users.length > 0) { store.data.users = parsed.users; } else { store.data.users = defaultUsers; store.save(); }
+                if (parsed && Array.isArray(parsed.matches)) store.data.matches = parsed.matches;
+                if (parsed && Array.isArray(parsed.history)) store.data.history = parsed.history;
+            }
+        } catch (e) { store.data.users = defaultUsers; store.save(); }
+    },
+    save: () => { try { localStorage.setItem('y369_data', JSON.stringify(store.data)); } catch (e) {} }
+};
+
+// --- AUTH ---
+const auth = { toggle: (view) => { $('loginForm').classList.toggle('hidden', view !== 'login'); $('registerForm').classList.toggle('hidden', view !== 'register'); } };
+const app = {
+    currentUser: null,
+    init: () => { store.init(); const session = localStorage.getItem('y369_session'); if(session) { const u = store.data.users.find(x => x.user === session); if(u) { app.currentUser = u; app.start(); } } },
+    login: () => { const u = $('loginUsername').value; const p = $('loginPassword').value; const user = store.data.users.find(x => x.user === u && x.pass === p); if(user) { app.currentUser = user; localStorage.setItem('y369_session', user.user); app.start(); toast.show(`Welcome back, ${user.user}!`, 'success'); } else { toast.show('Invalid credentials', 'error'); } },
+    register: () => { const u = $('regUsername').value; const p = $('regPassword').value; const c = $('regConfirm').value; if(!u || !p) return toast.show('Fill all fields', 'error'); if(p !== c) return toast.show('Passwords do not match', 'error'); if(store.data.users.find(x => x.user === u)) return toast.show('User exists', 'error'); store.data.users.push({user: u, pass: p, balance: 0, role: 'user'}); store.save(); toast.show('Account created! Contact Admin to deposit.', 'success'); auth.toggle('login'); },
+    logout: () => { app.currentUser = null; localStorage.removeItem('y369_session'); $('appContainer').classList.remove('active'); $('authScreen').style.display = 'flex'; },
+    start: () => { $('authScreen').style.display = 'none'; $('appContainer').classList.add('active'); app.updateUI(); sports.render(); },
+    updateUI: () => { if(!app.currentUser) return; $('headerBalance').innerText = app.currentUser.balance.toFixed(2); $('profileName').innerText = app.currentUser.user; $('profileBalance').innerText = '$' + app.currentUser.balance.toFixed(2); if($('gameBalance')) $('gameBalance').innerText = app.currentUser.balance.toFixed(2); if($('slotDispCredit')) $('slotDispCredit').innerText = app.currentUser.balance.toFixed(0); historyPage.render(); },
+    deposit: () => { if(app.currentUser.role === 'admin') { const amt = prompt('Enter deposit amount:', '100'); const val = parseFloat(amt); if(val > 0) { app.currentUser.balance += val; store.save(); app.updateUI(); toast.show(`Deposited $${val.toFixed(2)}`, 'success'); } } else { alert("To deposit money, please contact the Admin."); } },
+    withdraw: () => { const amt = prompt('Enter withdraw amount:', '50'); const val = parseFloat(amt); if(val > 0 && val <= app.currentUser.balance) { app.currentUser.balance -= val; store.save(); app.updateUI(); toast.show(`Withdrew $${val.toFixed(2)}`, 'success'); } else toast.show('Invalid amount', 'error'); },
+    
+    // --- UPDATED ADMIN ACCESS ---
+    showAdmin: () => { 
+        if(!app.currentUser) return toast.show('Login first', 'error');
+        
+        const pass = prompt("ENTER ADMIN PASSWORD:");
+        if (pass === '2812007') {
+            $('adminPanel').classList.add('active'); 
+            admin.renderUsers();
+        } else if (pass !== null) { // null means user clicked cancel
+            toast.show('Incorrect Password', 'error'); 
+        }
+    },
+    hideAdmin: () => $('adminPanel').classList.remove('active')
+};
+
+// --- NAVIGATION ---
+const nav = {
+    currentCategory: 'all',
+    goTo: (page, category = null) => {
+        document.querySelectorAll('.fadeIn').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        $(page + 'Page').classList.remove('hidden'); $('nav-' + page).classList.add('active');
+        if(page === 'sports') { if(category) nav.currentCategory = category; const title = nav.currentCategory.charAt(0).toUpperCase() + nav.currentCategory.slice(1); $('sportsTitle').innerText = title; sports.render(); }
+        if(page === 'history') historyPage.render();
+    }
+};
+
+// --- SPORTSBOOK ---
+const sports = {
+    render: () => {
+        const c = $('matchesList'); c.innerHTML = '';
+        let filtered = store.data.matches;
+        if (nav.currentCategory !== 'all') { filtered = store.data.matches.filter(m => m.category === nav.currentCategory); }
+        if(filtered.length === 0) c.innerHTML = `<p style='text-align:center; color:#888; margin-top:20px;'>No ${nav.currentCategory} matches available.</p>`;
+        
+        filtered.forEach(m => {
+            const card = create('div', 'match-card');
+            let html = `
+                <div class="match-header"><span>ID: ${m.id} (${m.category.toUpperCase()})</span><span>WIN ODDS: ${m.odds}x</span></div>
+                <div class="match-body"><div class="match-teams">${m.t1} vs ${m.t2}</div><div class="match-score">${m.score || 'VS'}</div></div>
+                <div class="bet-section"><div class="bet-section-title">Match Winner</div>
+                    <div class="match-actions">
+                        <button class="bet-btn" onclick="sports.bet('${m.id}', '1', '${m.t1}', ${m.odds})">HOME (${m.odds}x)</button>
+                        <button class="bet-btn" onclick="sports.bet('${m.id}', 'draw', 'DRAW', 3.0)">DRAW</button>
+                        <button class="bet-btn" onclick="sports.bet('${m.id}', '2', '${m.t2}', ${m.odds})">AWAY (${m.odds}x)</button>
+                    </div>
+                </div>`;
+            if(m.overs && m.overs.length > 0) { html += `<div class="bet-section"><div class="bet-section-title">Over</div><div class="match-actions-2">`; m.overs.forEach(val => { html += `<button class="bet-btn" onclick="sports.bet('${m.id}', 'over_${val}', 'Over ${val}', 1.9)">O ${val}</button>`; }); html += `</div></div>`; }
+            if(m.unders && m.unders.length > 0) { html += `<div class="bet-section"><div class="bet-section-title">Under</div><div class="match-actions-2">`; m.unders.forEach(val => { html += `<button class="bet-btn" onclick="sports.bet('${m.id}', 'under_${val}', 'Under ${val}', 1.9)">U ${val}</button>`; }); html += `</div></div>`; }
+            card.innerHTML = html; c.appendChild(card);
+        });
+    },
+    bet: (id, pick, name, odds) => {
+        const amt = prompt('Enter bet amount:', '10'); const val = parseFloat(amt);
+        if(!val || val <= 0) return;
+        if(val > app.currentUser.balance) return toast.show('Insufficient funds', 'error');
+        app.currentUser.balance -= val;
+        const bet = { id: Date.now(), user: app.currentUser.user, matchId: id, pick: pick, pickName: name, amount: val, odds: odds || 1.9, status: 'pending', type: 'sports', time: new Date().toLocaleString() };
+        store.data.history.push(bet); store.save(); app.updateUI(); toast.show(`Bet $${val} on ${name}`, 'success');
+    }
+};
+
+// --- HISTORY PAGE ---
+const historyPage = {
+    filterState: 'all',
+    render: () => {
+        const c = $('historyList'); c.innerHTML = '';
+        let items = store.data.history.filter(h => h.user === app.currentUser.user);
+        if(historyPage.filterState !== 'all') items = items.filter(h => h.status === historyPage.filterState);
+        if(items.length === 0) c.innerHTML = "<p style='text-align:center; color:#888;'>No history found.</p>";
+        items.forEach(h => {
+            const card = create('div', `receipt-card ${h.status}`);
+            card.innerHTML = `<div><div class="receipt-id">ID: ${h.id}</div><strong>${h.type.toUpperCase()}</strong> <span style="color:#888; font-size:12px;">(${h.time})</span><br><span>${h.matchId} - Pick: ${h.pickName}</span></div><div style="text-align:right; font-weight:700;">$${h.amount.toFixed(2)}</div>`;
+            c.appendChild(card);
+        });
+    },
+    filter: (f) => { historyPage.filterState = f; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); historyPage.render(); }
+};
+
+// --- DRAGON TIGER GAME ---
+const game = {
+    state: { bets: {}, chip: 25, timer: 20, interval: null, canBet: true, forced: null },
+    start: () => { $('gameScreen').classList.add('active'); game.reset(); game.loop(); },
+    exit: () => { $('gameScreen').classList.remove('active'); clearInterval(game.state.interval); game.reset(); },
+    reset: () => { game.state.bets = {tiger: 0, dragon: 0, tie: 0}; game.state.canBet = true; game.state.timer = 20; $('cardTiger').classList.remove('flipped'); $('cardDragon').classList.remove('flipped'); $('resultOverlay').classList.remove('show'); $('stackTiger').innerHTML = ''; $('stackDragon').innerHTML = ''; $('stackTie').innerHTML = ''; app.updateUI(); },
+    loop: () => { clearInterval(game.state.interval); game.state.timer = 20; $('timerText').innerText = "BETTING OPEN"; $('timerVal').innerText = game.state.timer + "s"; $('gameTimer').style.borderColor = 'var(--primary)'; game.state.interval = setInterval(() => { game.state.timer--; $('timerVal').innerText = game.state.timer + "s"; if(game.state.timer <= 5) { $('timerText').innerText = "LAST BETS"; $('gameTimer').style.borderColor = '#d32f2f'; } if (game.state.timer <= 0) { clearInterval(game.state.interval); game.deal(); } }, 1000); },
+    selectChip: (val) => { game.state.chip = val; document.querySelectorAll('#gameScreen .chip-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); },
+    bet: (type) => { if(!game.state.canBet) return; if(app.currentUser.balance < game.state.chip) return toast.show('No balance', 'error'); app.currentUser.balance -= game.state.chip; game.state.bets[type] += game.state.chip; const stack = $('stack' + type.charAt(0).toUpperCase() + type.slice(1)); const chip = create('div', 'stack-chip'); chip.innerText = game.state.chip >= 1000 ? (game.state.chip/1000)+'K' : game.state.chip; stack.appendChild(chip); store.save(); app.updateUI(); },
+    clearBets: () => { if(!game.state.canBet) return; for(let k in game.state.bets) { app.currentUser.balance += game.state.bets[k]; game.state.bets[k] = 0; } $('stackTiger').innerHTML = ''; $('stackDragon').innerHTML = ''; $('stackTie').innerHTML = ''; store.save(); app.updateUI(); },
+    deal: () => {
+        game.state.canBet = false; $('timerText').innerText = "DEALING...";
+        const suits = ['♠','♥','♦','♣']; const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+        const getVal = r => r === 'A' ? 1 : (isNaN(parseInt(r)) ? 10 : parseInt(r));
+        const isRed = s => s === '♥' || s === '♦';
+        let tRank, tSuit, dRank, dSuit, tVal, dVal; let force = game.state.forced;
+        if(force === 'tiger') { tRank = ranks[Math.floor(Math.random()*ranks.length)]; tSuit = suits[Math.floor(Math.random()*suits.length)]; tVal = getVal(tRank); do { dRank = ranks[Math.floor(Math.random()*ranks.length)]; dSuit = suits[Math.floor(Math.random()*suits.length)]; dVal = getVal(dRank); } while(dVal >= tVal); }
+        else if(force === 'dragon') { dRank = ranks[Math.floor(Math.random()*ranks.length)]; dSuit = suits[Math.floor(Math.random()*suits.length)]; dVal = getVal(dRank); do { tRank = ranks[Math.floor(Math.random()*ranks.length)]; tSuit = suits[Math.floor(Math.random()*suits.length)]; tVal = getVal(tRank); } while(tVal >= dVal); }
+        else if(force === 'tie') { tRank = ranks[Math.floor(Math.random()*ranks.length)]; tSuit = suits[Math.floor(Math.random()*suits.length)]; tVal = getVal(tRank); dRank = tRank; dSuit = suits[Math.floor(Math.random()*suits.length)]; dVal = tVal; }
+        else { tRank = ranks[Math.floor(Math.random()*ranks.length)]; tSuit = suits[Math.floor(Math.random()*suits.length)]; dRank = ranks[Math.floor(Math.random()*ranks.length)]; dSuit = suits[Math.floor(Math.random()*suits.length)]; tVal = getVal(tRank); dVal = getVal(dRank); }
+        game.state.forced = null;
+        $('tigerFront').innerHTML = `<div class="card-rank-val ${isRed(tSuit) ? 'card-red' : 'card-black'}">${tRank}</div><div class="card-suit-val">${tSuit}</div>`;
+        $('dragonFront').innerHTML = `<div class="card-rank-val ${isRed(dSuit) ? 'card-red' : 'card-black'}">${dRank}</div><div class="card-suit-val">${dSuit}</div>`;
+        setTimeout(() => $('cardTiger').classList.add('flipped'), 300); setTimeout(() => $('cardDragon').classList.add('flipped'), 600);
+        setTimeout(() => game.resolve(tVal, dVal), 2500);
+    },
+    resolve: (tv, dv) => {
+        let res = tv > dv ? 'tiger' : (dv > tv ? 'dragon' : 'tie'); let totalWin = 0; let totalBet = game.state.bets.tiger + game.state.bets.dragon + game.state.bets.tie;
+        if(res === 'tie') { totalWin = game.state.bets.tie * 9; app.currentUser.balance += game.state.bets.tiger + game.state.bets.dragon; } else { totalWin = game.state.bets[res] * 2; }
+        app.currentUser.balance += totalWin;
+        store.data.history.push({ id: Date.now(), user: app.currentUser.user, type: 'dragon_tiger', matchId: 'DT-' + Date.now(), pickName: res.toUpperCase(), amount: totalBet, status: totalWin > 0 ? 'win' : (totalBet > 0 ? 'lose' : 'pending'), time: new Date().toLocaleString() });
+        store.save(); app.updateUI(); game.showResult(res, totalWin, totalBet);
+        setTimeout(() => game.reset(), 3000); setTimeout(() => game.loop(), 4000);
+    },
+    showResult: (res, win, bet) => {
+        $('resultMain').innerText = res.toUpperCase(); $('resultMain').className = `result-main ${res}`;
+        if(win > 0) { $('resultSub').innerText = "YOU WIN"; $('resultSub').style.color = "#4caf50"; $('resultAmount').innerText = `+$${win.toFixed(2)}`; }
+        else if(bet > 0) { $('resultSub').innerText = "YOU LOSE"; $('resultSub').style.color = "#d32f2f"; $('resultAmount').innerText = `-$${bet.toFixed(2)}`; }
+        else { $('resultSub').innerText = "NO BET"; $('resultSub').style.color = "#fff"; $('resultAmount').innerText = ""; }
+        $('resultOverlay').classList.add('show');
+    }
+};
+
+// --- SLOT MACHINE (Logic Included) ---
+const slotGame = {
+    symbols: [{id: '🍋',w:30,m:2},{id: '🍊',w:25,m:3},{id: '🍇',w:20,m:4},{id: '🔔',w:15,m:5},{id: '⭐',w:10,m:10},{id: '7️⃣',w:5,m:25},{id: '💎',w:2,m:100}],
+    state: { bet: 50, spinning: false }, bgParts: [], confettiParts: [],
+    start: () => { $('slotScreen').classList.add('active'); app.updateUI(); },
+    exit: () => { $('slotScreen').classList.remove('active'); },
+    getSym: function() { const total = slotGame.symbols.reduce((a, s) => a + s.w, 0); let r = Math.floor(Math.random() * total); for(let s of slotGame.symbols) { if (r < s.w) return s; r -= s.w; } return slotGame.symbols[0]; },
+    setBet: function(v) { if (slotGame.state.spinning) return; if (v === 100) slotGame.state.bet = 100; else slotGame.state.bet += v; if (slotGame.state.bet < 10) slotGame.state.bet = 10; if (slotGame.state.bet > 100) slotGame.state.bet = 100; $('slotDispBet').innerText = slotGame.state.bet; },
+    spin: function() { if (slotGame.state.spinning) return; if (app.currentUser.balance < slotGame.state.bet) { toast.show("No Credits", "error"); return; } slotGame.state.spinning = true; $('slotSpinBtn').disabled = true; app.currentUser.balance -= slotGame.state.bet; store.save(); app.updateUI(); setTimeout(() => { const results = [slotGame.getSym(), slotGame.getSym(), slotGame.getSym()]; slotGame.checkResult(results); }, 3000); },
+    checkResult: function(res) { slotGame.state.spinning = false; $('slotSpinBtn').disabled = false; let win = 0; if (res[0].id === res[1].id && res[1].id === res[2].id) { win = res[0].m * slotGame.state.bet; } app.currentUser.balance += win; store.data.history.push({ id: Date.now(), user: app.currentUser.user, type: 'slots', matchId: 'SLOT', pickName: 'Spin', amount: slotGame.state.bet, status: win > 0 ? 'win' : 'lose', time: new Date().toLocaleString() }); store.save(); app.updateUI(); },
+};
+
+// --- ADMIN CONTROLLER (UPDATED) ---
+const admin = {
+    renderUsers: () => {
+        const tbody = $('userTableBody');
+        tbody.innerHTML = '';
+        store.data.users.forEach(u => {
+            const tr = create('tr');
+            tr.innerHTML = `
+                <td><strong>${u.user}</strong></td>
+                <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+                <td style="color:var(--success);">$${u.balance.toFixed(2)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    },
+    
+    quickEdit: (type) => {
+        const username = $('adminTargetUser').value;
+        const amount = parseFloat($('adminTargetAmount').value);
+        
+        if(!username || !amount) return toast.show('Enter Username and Amount', 'error');
+        
+        const u = store.data.users.find(x => x.user === username);
+        if(!u) return toast.show('User not found', 'error');
+        
+        if(type === 'add') {
+            u.balance += amount;
+            toast.show(`Added $${amount} to ${u.user}`, 'success');
+        } else if(type === 'remove') {
+            if(u.balance < amount) return toast.show('User has insufficient funds', 'error');
+            u.balance -= amount;
+            toast.show(`Removed $${amount} from ${u.user}`, 'success');
+        }
+        
+        store.save();
+        admin.renderUsers(); // Refresh table
+        app.updateUI(); // Update header if admin is editing self
+    },
+
+    forceGame: (type) => { game.state.forced = type; $('adminGameMode').innerText = type ? type.toUpperCase() : 'NORMAL'; toast.show(`DT Result: ${type ? type.toUpperCase() : 'RANDOM'}`, 'info'); },
+    
+    removeMatch: () => {
+        const id = $('adminRemoveId').value;
+        const mIndex = store.data.matches.findIndex(m => m.id === id);
+        if (mIndex === -1) return toast.show('Match ID not found', 'error');
+        let refundedCount = 0;
+        store.data.history.forEach(h => {
+            if(h.matchId === id && h.status === 'pending'){ h.status = 'void'; const user = store.data.users.find(u => u.user === h.user); if(user){ user.balance += h.amount; refundedCount++; } }
+        });
+        store.data.matches.splice(mIndex, 1);
+        store.save(); sports.render(); app.updateUI();
+        let msg = 'Match Removed'; if(refundedCount > 0) msg += ` & ${refundedCount} bets refunded`;
+        toast.show(msg, 'success');
+    },
+
+    updateMatchInfo: () => {
+        const id = $('adminUpdateId').value; const newScore = $('adminUpdateScore').value; const newOdds = $('adminUpdateOdds').value;
+        const m = store.data.matches.find(x => x.id === id);
+        if(!m) return toast.show('Match ID not found', 'error');
+        if(newScore) m.score = newScore;
+        if(newOdds) m.odds = parseFloat(newOdds);
+        store.save(); sports.render(); toast.show('Match Info Updated', 'success');
+    },
+
+    updateReceipt: (status) => {
+        const rId = parseInt($('adminReceiptId').value);
+        const receipt = store.data.history.find(h => h.id === rId);
+        if(!receipt) return toast.show('Receipt ID not found', 'error');
+        if(status === 'win' && receipt.status !== 'win') {
+            const user = store.data.users.find(u => u.user === receipt.user);
+            if(user) { const payout = receipt.amount * receipt.odds; user.balance += payout; toast.show(`Paid $${payout.toFixed(2)} to ${user.user}`, 'success'); }
+        }
+        receipt.status = status; store.save(); app.updateUI(); toast.show(`Receipt ${rId} set to ${status.toUpperCase()}`, 'success');
+    },
+
+    addMatch: () => {
+        const m = {
+            id: $('adminMatchId').value, t1: $('adminTeam1').value, t2: $('adminTeam2').value,
+            odds: parseFloat($('adminMatchOdds').value) || 1.9, category: $('adminMatchCat').value, score: "0:0",
+            overs: $('adminOvers').value.split(',').map(s => s.trim()).filter(s => s),
+            unders: $('adminUnders').value.split(',').map(s => s.trim()).filter(s => s)
+        };
+        if(!m.id || !m.t1 || !m.t2) return toast.show('Fill ID and Teams', 'error');
+        store.data.matches.push(m); store.save(); sports.render(); toast.show('Match Added', 'success');
+    },
+    settle: (type) => {
+        const id = $('adminSettleId').value; const m = store.data.matches.find(x => x.id === id);
+        if(!m) return toast.show('Match ID not found', 'error');
+        store.data.history.forEach(h => {
+            if(h.matchId === id && h.status === 'pending'){
+                let win = false;
+                if(type === '1' && h.pick === '1') win = true;
+                if(type === '2' && h.pick === '2') win = true;
+                if(type === 'over' && h.pick.startsWith('over_')) win = true;
+                if(type === 'under' && h.pick.startsWith('under_')) win = true;
+                if(win){ h.status = 'win'; const u = store.data.users.find(x => x.user === h.user); if(u) { u.balance += h.amount * h.odds; } }
+                else { h.status = 'lose'; }
+            }
+        });
+        store.save(); sports.render(); app.updateUI(); toast.show('Match Settled', 'success');
+    }
+};
+
+// Start Application
+window.onload = app.init;
+</script>
+</body>
+</html>
